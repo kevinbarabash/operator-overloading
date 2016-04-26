@@ -1,38 +1,34 @@
-import {
-    binaryOperators,
-    logicalOperators,
-    unaryOperators,
-    updateOperators
-} from './operator-data';
+const data = require('./data');
 
-for (const name of Object.values(binaryOperators)) {
+/**
+ * Symbol
+ */
+for (const name of Object.values(data.binaryOperators)) {
     Symbol[name] = Symbol(name);
 }
 
-for (const name of Object.values(logicalOperators)) {
+for (const name of Object.values(data.logicalOperators)) {
     Symbol[name] = Symbol(name);
 }
 
-for (const name of Object.values(unaryOperators)) {
+for (const name of Object.values(data.unaryOperators)) {
     Symbol[name] = Symbol(name);
 }
 
-for (const name of Object.values(updateOperators)) {
+for (const name of Object.values(data.updateOperators)) {
     Symbol[name] = Symbol(name);
 }
 
-//
-// String polyfill
-//
-
+/**
+ * String
+ */
 String.prototype[Symbol.plus] = function(other) {
     return this + other;
 };
 
-//
-// Number polyfill
-//
-
+/**
+ * Number
+ */
 Number.prototype[Symbol.plus] = function(other) {
     return this + other;
 };
@@ -60,4 +56,3 @@ Number.prototype[Symbol.unaryMinus] = function() {
 Number.prototype[Symbol.unaryPlus] = function() {
     return +this;
 };
-

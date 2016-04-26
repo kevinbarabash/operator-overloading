@@ -40,8 +40,9 @@ console.log(`R >= R = ${R >= R}`);
 console.log(`R <= R = ${R <= R}`);
 console.log('');
 
+console.log('Intentional errors:');
 try {
-    console.log(U ^ {});
+    console.log(U ^ 2);
 } catch (e) {
     console.log(e);
 }

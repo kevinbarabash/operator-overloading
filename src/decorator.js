@@ -1,30 +1,25 @@
-import {
-    binaryOperators,
-    logicalOperators,
-    unaryOperators,
-    updateOperators
-} from './operator-data';
+const data = require('./data');
 
-export default function operator(operator) {
+module.exports = function operator(operator) {
     return function(target, name, descriptor) {
         switch (descriptor.value.length) {
             case 0:
-                if (operator in unaryOperators) {
-                    const name = unaryOperators[operator];
+                if (operator in data.unaryOperators) {
+                    const name = data.unaryOperators[operator];
                     target[Symbol[name]] = descriptor.value;
-                } else if (operator in updateOperators) {
-                    const name = updateOperators[operator];
+                } else if (operator in data.updateOperators) {
+                    const name = data.updateOperators[operator];
                     target[Symbol[name]] = descriptor.value;
                 } else {
                     throw new Error(`${operator} not a valid unary operator`);
                 }
                 break;
             case 1:
-                if (operator in binaryOperators) {
-                    const name = binaryOperators[operator];
+                if (operator in data.binaryOperators) {
+                    const name = data.binaryOperators[operator];
                     target[Symbol[name]] = descriptor.value;
-                } else if (operator in logicalOperators) {
-                    const name = logicalOperators[operator];
+                } else if (operator in data.logicalOperators) {
+                    const name = data.logicalOperators[operator];
                     target[Symbol[name]] = descriptor.value;
                 } else {
                     throw new Error(`${operator} not a valid operator`);

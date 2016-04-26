@@ -1,6 +1,6 @@
-import operator from './operator-decorator';
+const { operator } = require('../src');
 
-export default class Vector {
+class Vector {
     constructor(x, y, z) {
         Object.assign(this, { x, y, z });
     }
@@ -24,3 +24,5 @@ export default class Vector {
         return `(${this.x}, ${this.y}, ${this.z})`;
     }
 }
+
+module.exports = Vector;

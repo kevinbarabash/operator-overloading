@@ -1,4 +1,4 @@
-export const binaryOperators = {
+exports.binaryOperators = {
     '==': 'equality',
     '!=': 'inequality',
     '===': 'strictEquality',
@@ -25,12 +25,12 @@ export const binaryOperators = {
     '&': 'bitwiseAnd',
 };
 
-export const logicalOperators = {
+exports.logicalOperators = {
     '||': 'logicalOr',
     '&&': 'logicalAnd',
 };
 
-export const unaryOperators = {
+exports.unaryOperators = {
     '+': 'unaryPlus',
     '-': 'unaryMinus',
 
@@ -39,7 +39,7 @@ export const unaryOperators = {
 };
 
 // TODO: figure out how to differentiate pre/post unary ops
-export const updateOperators = {
+exports.updateOperators = {
     '++': 'increment',
     '--': 'decrement',
 };

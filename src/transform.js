@@ -1,15 +1,10 @@
-import esprima from 'esprima';
-import escodegen from 'escodegen';
-import estraverse from 'estraverse';
+const esprima = require('esprima');
+const escodegen = require('escodegen');
+const estraverse = require('estraverse');
 
-import {
-    binaryOperators,
-    logicalOperators,
-    unaryOperators,
-    updateOperators
-} from './operator-data';
+const data = require('./data');
 
-export default function transform(code) {
+module.exports = function transform(code) {
     const ast = esprima.parse(code);
 
     estraverse.replace(ast, {
@@ -28,7 +23,7 @@ export default function transform(code) {
                             },
                             property: {
                                 type: 'Identifier',
-                                name: binaryOperators[node.operator],
+                                name: data.binaryOperators[node.operator],
                             },
                         },
                         computed: true,
@@ -49,7 +44,7 @@ export default function transform(code) {
                             },
                             property: {
                                 type: 'Identifier',
-                                name: logicalOperators[node.operator],
+                                name: data.logicalOperators[node.operator],
                             },
                         },
                         computed: true,
@@ -74,7 +69,7 @@ export default function transform(code) {
                                 },
                                 property: {
                                     type: 'Identifier',
-                                    name: binaryOperators[node.operator.replace('=', '')],
+                                    name: data.binaryOperators[node.operator.replace('=', '')],
                                 },
                             },
                             computed: true,
@@ -96,7 +91,7 @@ export default function transform(code) {
                             },
                             property: {
                                 type: 'Identifier',
-                                name: unaryOperators[node.operator],
+                                name: data.unaryOperators[node.operator],
                             },
                         },
                         computed: true,
@@ -117,7 +112,7 @@ export default function transform(code) {
                             },
                             property: {
                                 type: 'Identifier',
-                                name: updateOperators[node.operator],
+                                name: data.updateOperators[node.operator],
                             },
                         },
                         computed: true,
