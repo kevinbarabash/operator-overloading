@@ -1,14 +1,14 @@
-import operator from './operator';
+import operator from './operator-decorator';
 
 export default class SuperSet extends Set {
     @operator('<=')
     isSubset(t) {
-        // TODO: implement this
+        return [...this].every((item) => t.has(item));
     }
 
     @operator('>=')
     isSuperset(t) {
-        // TODO: implement this
+        return [...t].every((item) => this.has(item));
     }
 
     @operator('|')
@@ -33,4 +33,8 @@ export default class SuperSet extends Set {
             ...[...t].filter(item => !this.has(item))
         ]);
     };
+
+    toString() {
+        return `{${[...this].join(', ')}}`;
+    }
 }

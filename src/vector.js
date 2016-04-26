@@ -1,4 +1,4 @@
-import operator from './operator';
+import operator from './operator-decorator';
 
 export default class Vector {
     constructor(x, y, z) {
