@@ -15,6 +15,11 @@ class Vector {
         return new Vector(this.x - other.x, this.y - other.y, this.z - other.z);
     }
 
+    @operator('*')  // we actually want this to desugar k * vec to vec.scale(k);
+    scale(k) {
+        return new Vector(k * this.x, k * this.y, k * this.z);
+    }
+
     @operator('-')
     negate() {
         return new Vector(-this.x, -this.y, -this.z);
