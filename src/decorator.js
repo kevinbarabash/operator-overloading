@@ -6,7 +6,7 @@ module.exports = function operator(op) {
         switch (desc.value.length) {
             case 0:
                 if (op in data.unaryOperators) {
-                    Function.defineOperator([op, ctor], (a) => {
+                    Function.defineOperator(op, [ctor], (a) => {
                         return desc.value.call(a);
                     });
                 } else {
@@ -15,11 +15,11 @@ module.exports = function operator(op) {
                 break;
             case 1:
                 if (op in data.binaryOperators) {
-                    Function.defineOperator([ctor, op, ctor], (a, b) => {
+                    Function.defineOperator(op, [ctor, ctor], (a, b) => {
                         return desc.value.call(a, b);
                     });
                 } else if (op in data.logicalOperators) {
-                    Function.defineOperator([ctor, op, ctor], (a, b) => {
+                    Function.defineOperator(op, [ctor, ctor], (a, b) => {
                         return desc.value.call(a, b);
                     });
                 } else {

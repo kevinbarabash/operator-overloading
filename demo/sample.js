@@ -6,11 +6,13 @@ const a = new Complex(1, -1);
 const b = new Complex(0, 3);
 
 console.log('Complex numbers:');
-console.log(a + b);
-console.log(Function[Symbol.minus](a, b));
-console.log(Function[Symbol.times](a, b));
-console.log(Function[Symbol.plus](5, b));
-console.log(Function[Symbol.plus](a, 10));
+console.log(`a = ${a}`);
+console.log(`b = ${b}`);
+console.log(`a + b = ${a + b}`);
+console.log(`a - b = ${a - b}`);
+console.log(`a * b = ${a * b}`);
+console.log(`5 * b = ${5 * b}`);
+console.log(`a + 10 = ${a + 10}`);
 console.log('');
 
 const u = new Vector(1, 2, 3);

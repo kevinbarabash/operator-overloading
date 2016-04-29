@@ -1,3 +1,5 @@
+const assert = require('assert');
+
 const prototypes = [];
 const operators = {};
 
@@ -8,8 +10,8 @@ const commutatives = [
 // TODO: define relational operators in terms of each other
 // e.g. if a user defines == using fn(a, b) we should define != as !fn(a, b)
 
-const defineBinaryOperator = function(desc, fn) {
-    const [a, op, b] = desc;
+const defineBinaryOperator = function(op, types, fn) {
+    const [a, b] = types;
 
     const aProto = a.prototype;
     const bProto = b.prototype;
@@ -38,8 +40,8 @@ const defineBinaryOperator = function(desc, fn) {
     }
 };
 
-const defineUnaryOperator = function(desc, fn) {
-    const [op, a] = desc;
+const defineUnaryOperator = function(op, types, fn) {
+    const [a] = types;
 
     const aProto = a.prototype;
 
@@ -56,16 +58,21 @@ const defineUnaryOperator = function(desc, fn) {
     operators[op][id] = fn;
 };
 
-Function.defineOperator = function(desc, fn) {
-    switch (desc.length) {
-        case 2:
-            defineUnaryOperator(desc, fn);
-            break;
-        case 3:
-            defineBinaryOperator(desc, fn);
-            break;
-        default:
-            throw new Error('invalid descriptor');
+Function.defineOperator = function(op, types, fn) {
+    const fnLen = fn.length;
+
+    assert.equal(fnLen, types.length,
+        `number of types and number of function args don't match`);
+
+    assert(1 <= fnLen && fnLen <= 2,
+        `only unary and binary operators allowed`);
+
+    if (fnLen === 2) {
+        return defineBinaryOperator(op, types, fn);
+    }
+
+    if (fnLen === 1) {
+        return defineUnaryOperator(op, types, fn);
     }
 };
 
