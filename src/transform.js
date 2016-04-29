@@ -8,6 +8,10 @@ module.exports = function transform(code) {
     const ast = esprima.parse(code);
 
     estraverse.replace(ast, {
+        enter(node) {
+            // TODO: track entering/leaving function/method bodies
+            // check whether there's a 'use overloading'
+        },
         leave(node) {
             if (node.type === 'BinaryExpression') {
                 return {
@@ -111,6 +115,7 @@ module.exports = function transform(code) {
                     arguments: [node.argument],
                 }
             } else if (node.type === 'UpdateExpression') {
+                // TODO: remove update expressions
                 return {
                     type: 'CallExpression',
                     callee: {

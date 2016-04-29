@@ -21,10 +21,11 @@ const v = new Vector(0, 1, -2);
 console.log('Vector operutions:');
 console.log(`u = ${u}`);
 console.log(`v = ${v}`);
-console.log('u + v = ' + (u + v));
-console.log('u - v = ' + (u - v));
-console.log('-u = ' + -u);
-console.log('-v = ' + -v);
+console.log(`u + v = ${u + v}`);
+console.log(`u - v = ${u - v}`);
+console.log(`-u = ${-u}`);
+console.log(`-v = ${-v}`);
+console.log(`3 * ${u} = ${3 * u}`);
 
 let w = new Vector(1, 0, 0);
 
