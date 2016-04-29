@@ -17,7 +17,7 @@ exports.binaryOperators = {
     '-': 'minus',
     '*': 'times',
     '/': 'divide',
-    '%': 'modulo',
+    '%': 'remainder',
     '**': 'power',
 
     '|': 'bitwiseOr',

@@ -1,28 +1,29 @@
 const data = require('./data');
 
-module.exports = function operator(operator) {
-    return function(target, name, descriptor) {
-        switch (descriptor.value.length) {
+module.exports = function operator(op) {
+    return function(target, name, desc) {
+        const ctor = target.constructor;
+        switch (desc.value.length) {
             case 0:
-                if (operator in data.unaryOperators) {
-                    const name = data.unaryOperators[operator];
-                    target[Symbol[name]] = descriptor.value;
-                } else if (operator in data.updateOperators) {
-                    const name = data.updateOperators[operator];
-                    target[Symbol[name]] = descriptor.value;
+                if (op in data.unaryOperators) {
+                    Function.defineOperator([op, ctor], (a) => {
+                        return desc.value.call(a);
+                    });
                 } else {
-                    throw new Error(`${operator} not a valid unary operator`);
+                    throw new Error(`${op} not a valid unary operator`);
                 }
                 break;
             case 1:
-                if (operator in data.binaryOperators) {
-                    const name = data.binaryOperators[operator];
-                    target[Symbol[name]] = descriptor.value;
-                } else if (operator in data.logicalOperators) {
-                    const name = data.logicalOperators[operator];
-                    target[Symbol[name]] = descriptor.value;
+                if (op in data.binaryOperators) {
+                    Function.defineOperator([ctor, op, ctor], (a, b) => {
+                        return desc.value.call(a, b);
+                    });
+                } else if (op in data.logicalOperators) {
+                    Function.defineOperator([ctor, op, ctor], (a, b) => {
+                        return desc.value.call(a, b);
+                    });
                 } else {
-                    throw new Error(`${operator} not a valid operator`);
+                    throw new Error(`${op} not a binary valid operator`);
                 }
                 break;
             default:

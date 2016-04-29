@@ -1,18 +1,33 @@
-const a = new Vector(1, 2, 3);
-const b = new Vector(0, 1, -2);
+const Complex = require('./complex');
+const Vector = require('./vector');
+const Set = require('./super-set');
 
-console.log('Vector operations:');
-console.log(`a = ${a}`);
-console.log(`b = ${b}`);
-console.log('a + b = ' + (a + b));
-console.log('a - b = ' + (a - b));
-console.log('-a = ' + -a);
-console.log('-b = ' + -b);
+const a = new Complex(1, -1);
+const b = new Complex(0, 3);
 
-let c = new Vector(1, 0, 0);
+console.log('Complex numbers:');
+console.log(a + b);
+console.log(Function[Symbol.minus](a, b));
+console.log(Function[Symbol.times](a, b));
+console.log(Function[Symbol.plus](5, b));
+console.log(Function[Symbol.plus](a, 10));
+console.log('');
 
-console.log(`c = ${c}`);
-console.log(`c += a = ${c += a}`);
+const u = new Vector(1, 2, 3);
+const v = new Vector(0, 1, -2);
+
+console.log('Vector operutions:');
+console.log(`u = ${u}`);
+console.log(`v = ${v}`);
+console.log('u + v = ' + (u + v));
+console.log('u - v = ' + (u - v));
+console.log('-u = ' + -u);
+console.log('-v = ' + -v);
+
+let w = new Vector(1, 0, 0);
+
+console.log(`w = ${w}`);
+console.log(`w += a = ${w += a}`);
 console.log('');
 
 const U = new Set([1, 1, 2, 3]);

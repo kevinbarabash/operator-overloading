@@ -14,7 +14,10 @@ module.exports = function transform(code) {
                     type: 'CallExpression',
                     callee: {
                         type: 'MemberExpression',
-                        object: node.left,
+                        object: {
+                            type: 'Identifier',
+                            name: 'Function',
+                        },
                         property: {
                             type: 'MemberExpression',
                             object: {
@@ -28,14 +31,17 @@ module.exports = function transform(code) {
                         },
                         computed: true,
                     },
-                    arguments: [node.right],
+                    arguments: [node.left, node.right],
                 }
             } else if (node.type === 'LogicalExpression') {
                 return {
                     type: 'CallExpression',
                     callee: {
                         type: 'MemberExpression',
-                        object: node.left,
+                        object: {
+                            type: 'Identifier',
+                            name: 'Function',
+                        },
                         property: {
                             type: 'MemberExpression',
                             object: {
@@ -49,18 +55,21 @@ module.exports = function transform(code) {
                         },
                         computed: true,
                     },
-                    arguments: [node.right],
+                    arguments: [node.left, node.right],
                 }
             } else if (node.type === 'AssignmentExpression') {
                 return {
                     type: 'AssignmentExpression',
-                    left: node.left,
+                    left: JSON.parse(JSON.stringify(node.left)),
                     operator: '=',
                     right: {
                         type: 'CallExpression',
                         callee: {
                             type: 'MemberExpression',
-                            object: JSON.parse(JSON.stringify(node.left)),
+                            object: {
+                                type: 'Identifier',
+                                name: 'Function',
+                            },
                             property: {
                                 type: 'MemberExpression',
                                 object: {
@@ -74,7 +83,7 @@ module.exports = function transform(code) {
                             },
                             computed: true,
                         },
-                        arguments: [node.right],
+                        arguments: [node.left, node.right],
                     },
                 };
             } else if (node.type === 'UnaryExpression') {
@@ -82,7 +91,10 @@ module.exports = function transform(code) {
                     type: 'CallExpression',
                     callee: {
                         type: 'MemberExpression',
-                        object: node.argument,
+                        object: {
+                            type: 'Identifier',
+                            name: 'Function',
+                        },
                         property: {
                             type: 'MemberExpression',
                             object: {
@@ -96,14 +108,17 @@ module.exports = function transform(code) {
                         },
                         computed: true,
                     },
-                    arguments: [],
+                    arguments: [node.argument],
                 }
             } else if (node.type === 'UpdateExpression') {
                 return {
                     type: 'CallExpression',
                     callee: {
                         type: 'MemberExpression',
-                        object: node.argument,
+                        object: {
+                            type: 'Identifier',
+                            name: 'Function',
+                        },
                         property: {
                             type: 'MemberExpression',
                             object: {
@@ -117,7 +132,7 @@ module.exports = function transform(code) {
                         },
                         computed: true,
                     },
-                    arguments: [],
+                    arguments: [node.argument],
                 }
             }
         }
