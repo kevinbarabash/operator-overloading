@@ -1,8 +1,6 @@
 exports.binaryOperators = {
     '==': 'equality',
     '!=': 'inequality',
-    '===': 'strictEquality',
-    '!==': 'strictInequality',
 
     '<': 'lessThan',
     '<=': 'lessThanOrEqual',

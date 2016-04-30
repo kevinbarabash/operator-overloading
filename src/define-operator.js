@@ -40,10 +40,19 @@ const defineBinaryOperator = function(op, types, fn) {
         // involving types that aren't the same
         operators[op][`${rid},${lid}`] = (a, b) => fn(b, a);
     } else if (op === '<') {
+        if (!operators.hasOwnProperty('>')) {
+            operators['>'] = {};
+        }
         operators['>'][`${rid},${lid}`] = (a, b) => fn(b, a);
     } else if (op === '<=') {
+        if (!operators.hasOwnProperty('>=')) {
+            operators['>='] = {};
+        }
         operators['>='][`${rid},${lid}`] = (a, b) => fn(b, a);
     } else if (op === '==') {
+        if (!operators.hasOwnProperty('!=')) {
+            operators['!='] = {};
+        }
         operators['!='][`${lid},${rid}`] = (a, b) => !fn(a, b);
         operators['!='][`${rid},${lid}`] = (a, b) => !fn(b, a);
     }
@@ -74,24 +83,21 @@ const allowedOperators = [
     '+', '-', '*', '/', '%'
 ];
 
-Function.defineOperator = function(op, types, fn) {
+Function.defineOperator = function(desc, fn) {
+    const op = desc.operator;
+
     if (!allowedOperators.includes(op)) {
         throw new Error(`'${op}' cannot be overloaded`);
     }
-    const fnLen = fn.length;
 
-    assert.equal(fnLen, types.length,
-        `number of types and number of function args don't match`);
-
-    assert(1 <= fnLen && fnLen <= 2,
-        `only unary and binary operators allowed`);
-
-    if (fnLen === 2) {
-        return defineBinaryOperator(op, types, fn);
-    }
-
-    if (fnLen === 1) {
-        return defineUnaryOperator(op, types, fn);
+    if (desc.type === 'BinaryOperator') {
+        assert(fn.length === 2,
+            `function takes ${fn.length} params but should take 2`);
+        return defineBinaryOperator(op, [desc.left, desc.right], fn);
+    } else if (desc.type === 'UnaryOperator') {
+        assert(fn.length === 1,
+            `function takes ${fn.length} params but should take 1`);
+        return defineUnaryOperator(op, [desc.argument], fn);
     }
 };
 
@@ -124,7 +130,6 @@ const operatorData = {
     logicalNot:         ['!',   (a) => !a],
 };
 
-
 Object.keys(operatorData).forEach(name => {
     const op = operatorData[name][0];
     const fn = operatorData[name][1];
@@ -144,12 +149,40 @@ Object.keys(operatorData).forEach(name => {
             const bid = prototypes.indexOf(Object.getPrototypeOf(b));
             const fn = operators[op][`${aid},${bid}`] || operators[op]['-1,-1'];
             return fn(a, b);
+        };
+        if (allowedOperators.includes(op)) {
+g            Function.defineOperator({
+                type: 'BinaryOperator',
+                left: Function,
+                operator: op,
+                right: Function,
+            }, (A, B) => {
+                return {
+                    type: 'BinaryOperator',
+                    left: A,
+                    operator: op,
+                    right: B,
+                };
+            });
         }
     } else {
         Function[sym] = (a) => {
             const id = prototypes.indexOf(Object.getPrototypeOf(a));
             const fn = operators[op][id] || operators[op]['-1'];
             return fn(a);
+        };
+        if (allowedOperators.includes(op)) {
+            Function.defineOperator({
+                type: 'UnaryOperator',
+                operator: op,
+                argument: Function,
+            }, (B) => {
+                return {
+                    type: 'UnaryOperator',
+                    operator: op,
+                    argument: B,
+                };
+            });
         }
     }
 });

@@ -1,6 +1,19 @@
+'use overloading';
+
 const Complex = require('./complex');
 const Vector = require('./vector');
 const Set = require('./super-set');
+
+Function.defineOperator(Complex + Complex,
+    (a, b) => new Complex(a.re + b.re, a.im + b.im));
+Function.defineOperator(Complex - Complex,
+    (a, b) => new Complex(a.re - b.re, a.im - b.im));
+Function.defineOperator(Complex * Complex,
+    (a, b) => new Complex(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re));
+Function.defineOperator(Number + Complex,
+    (a, b) => new Complex(a + b.re, b.im));
+Function.defineOperator(Number * Complex,
+    (a, b) => new Complex(a * b.re, a * b.im));
 
 const a = new Complex(1, -1);
 const b = new Complex(0, 3);
