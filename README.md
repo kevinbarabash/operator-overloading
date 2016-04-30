@@ -95,6 +95,7 @@ __Notes:__
 - `Function.defineOperator(T == T, (a, b) => fn(a, b)` will automatically define
   `!=` as `(a, b) => !fn(a, b)`.
 - `!` and `!=` cannot be overloaded in order to perserve identities:
+  
   ```
   X ? A : B <=> !X ? B : A
   !(X && Y) <=> !X || !Y
@@ -103,6 +104,7 @@ __Notes:__
   ```
   Source: http://www.slideshare.net/BrendanEich/js-resp (page 7)
 - `>` and `>=` are derived from `<` and `<=` as follows:
+  
   ```
   A > B     <=> B < A
   A >= B    <=> B <= A
