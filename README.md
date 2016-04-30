@@ -1,6 +1,128 @@
 # Operator Overloading
 
-## Version 1: Method Based
+Working with classes that define standard arithmetic operations result in code
+that takes longer to write and is harder to read.
+
+__without overloading__
+```javascript
+let u = new Vector(1, 0);
+let v = new Vector(2, -1);
+
+let w = u.add(v);
+w = w.plus(v.scale(3));
+```
+
+__with overloading__
+```javascript
+let u = new Vector(1, 0);
+let v = new Vector(2, -1);
+
+let w = u + v;
+w += 3 * v;
+```
+
+## `Function.defineOperator`
+
+### Binary Operators
+
+Binary operators are defined as follows:
+```javascript
+Function.defineOperator(Vector + Vector,
+    (u, v) => new Vector(u.x + v.x, u.y + v.y);
+```
+
+This desugars to the following:
+```javascript
+Function.defineOperator({
+    type: 'BinaryOperator',
+    left: Vector,
+    operator: '+',
+    right: Vector
+}, (u, v) => new Vector(u.x + v.x, u.y + v.y));
+```
+
+The `Vector + Vector` syntax can be polyfilled with:
+```javascript
+Function.defineOperator({
+    type: 'BinaryOperator',
+    left: Function,
+    operator: '+',
+    right: Function,
+}, (A, B) => {
+    return {
+        type: 'BinaryOperator',
+        left: A,
+        operator: '+',
+        right: B
+    };
+});
+```
+
+### Unary Operators
+
+Unary operators are defined as follows:
+```javascript
+Function.defineOperator(- Vector, (v) => new Vector(-v.x, -v.y));
+```
+
+This desugars to the followign:
+```javascript
+Function.defineOperator({
+    type: 'UnaryOperator',
+    operator: '-',
+    argument: Vector
+}, (v) => new Vector(-v.x, -v.y);
+```
+
+The `- Vector` syntax can be polyfilled with:
+```javascript
+Function.defineOperator({
+    type: 'UnaryOperator',
+    operator: '-',
+    argument: Function
+}, (Type) =>  {
+    return {
+        type: 'UnaryOperator',
+        operator: '-',
+        argument: Type
+    };
+});
+```
+
+__Notes:__
+- Commutative operators, `+`, `*`, `&&`, `||`, `&`, `|`, `^`, automatically
+  flip the order of operands when their types are different.
+- `Function.defineOperator(T == T, (a, b) => fn(a, b)` will automatically define
+  `!=` as `(a, b) => !fn(a, b)`.
+- `!` and `!=` cannot be overloaded in order to perserve identities:
+  ```
+  X ? A : B <=> !X ? B : A
+  !(X && Y) <=> !X || !Y
+  !(X || Y) <=> !X && !Y
+  X != Y    <=> !(X == Y)
+  ```
+  Source: http://www.slideshare.net/BrendanEich/js-resp (page 7)
+- `>` and `>=` are derived from `<` and `<=` as follows:
+  ```
+  A > B     <=> B < A
+  A >= B    <=> B <= A
+  ```
+  Source: http://www.slideshare.net/BrendanEich/js-resp (page 8)
+
+## `'use overloading'` directive
+
+The `'use overloading'` directive can be used to limit the scope of overloading
+can be used.  This directive is opt-in because for existing code it will have
+negative performance impacts.  In general, overloading should be used where
+readability is more important that performance.
+
+It can be used at the start of a file or function/method definition.  The
+`@operator` section has an example of the `'use overloading'` directive in action.
+
+## `@operator` decorator
+
+The `@operator` decorator is a convenience for declaring methods as operators
+when defining a class.
 
 ```javascript
 class Vector {
@@ -23,98 +145,99 @@ class Vector {
         'use overloading';
         return this + -other;
     }
-}
 
-let position = new Vector(0, 0);
-let velocity = new Vector(2, -1);
-
-const animate = () => {
-    position += velocity;
-    requestAnimationFrame(animate);
-};
-
-requestAnimationFrame(animate);
-```
-
-### Features
-- convenient decorator syntax
-- automatic handling of assignment operators
-- differentiates between unary and binary operators
-- opt-in: limit scope to function or file with `'use overloading'` directive [TODO]
-
-### Implementation Details
-
-The `@operator` decorator adds additional methods to a class.
-
-```javascript
-@operator('+')
-add(other) {
-    return new Vector(this.x + other.x, this.y + other.y);
-}
-
-// Adds the following method
-[Symbol.plus](other) {
-    return new Vector(this.x + other.x, this.y + other.y);
+    @operator('*', Number)
+    scale(factor) {
+        return new Vector(factor * this.x, factor * this.y);
+    }
 }
 ```
 
-The use symbols avoids naming collisions.  The library adds a whole bunch of
-well-known symbols to the global `Symbol` object, see below for the full list.
+The `@operator` decorator makes the assumption that both operands are the same
+type as the class.  If this is not the case, the type of the other operand can
+be specified as the second parameter to `@operator`.
 
-Code containing the `'use overloading'` directive will be transformed so that
-all operators become method calls.
+## Implementation Details
+
+The following code:
 
 ```javascript
 'use overloading'
 
-let position = new Vector(0, 0);
-let velocity = new Vector(2, -1);
+let u = new Vector(1, 0);
+let v = new Vector(2, -1);
 
-position = velocity + position;
-// position = velocity[Symbol.plus](position);
-
-position += velocity;
-// position = velocity[Symbol.plus](position);
+let w = u + v;
+w += 3 * v;
 ```
 
-### Drawbacks
-- it's slower [TODO: measure how slow]
-- operations have be defined on existing classes, String and Number
-- classes that want interoperate need to know about each other
-
-## Version 2: Function.defineOperator [coming soon]
-
-This is inspired by a proposal by Brendan Eich, see
-http://www.slideshare.net/BrendanEich/js-resp (slide 13).
+relies one the following operators to be defined:
 
 ```javascript
-Function.defineOperator([Vector, '+', Vector], (left, right) =>
-    new Vector(left.x + right.x, left.y + right.y);
+Function.defineOperator(Vector + Vector,
+    (u, v) => new Vector(u.x + v.x, u.y + v.y);
 
-Function.defineOperator([Number, '*', Vector], (k, vec) =>
-    new Vector(k * vec.x, k * vec.y);
-
-Function.defineOperator(['-', Vector], (vec) =>
-    new Vector(-vec.x, -vec.y);
-
-// Function.defineComparison()
+Function.defineOperator(Number * Vector, (k, v))
 ```
 
-TODO: provide a way to define all comparison operators with a single function
-
-### Desugaring
+and compiles to:
 
 ```javascript
-let position = new Vector(0, 0);
-let velocity = new Vector(2, -1);
+let u = new Vector(1, 0);
+let v = new Vector(2, -1);
 
-position = velocity + position;
-// position = Function[Symbol.plus](velocity, position);
-
-position += velocity;
-// position = Function[Symbol.plus](velocity, position);
+let w = Function[Symbol.plus](u, v);
+w = Function[Symbol.plus](w, Function[Symbol.times](3, v));
 ```
 
-TODO: describe defintion and lookup
+The implementation defines the following well-known Symbols:
 
-TODO: describe how static typing could improve performance
+__Binary Operators__
+- plus `+`
+- minus `-`
+- times `*`
+- divide `/`
+- remainder `%`
+- equality `==`
+- inequality `!=`
+- strictEquality `===`
+- strictInequality `!==`
+- lessThan `<`
+- lessThanOrEqual `<=`
+- greaterThan `>`
+- greaterThanOrEqual `>=`
+- shiftLeft `<<`
+- shiftRight `>>`
+- unsignedShiftRight `>>>`
+- bitwiseOr `|`
+- bitwiseAnd `&`
+- bitwiseXor `^`
+- logicalOr `||`
+- logicalAnd `&&`
+
+__Unary Operators__
+- unaryPlus `+`
+- unaryMinus `-`
+- bitwiseNot `~`
+- logicalNot `!`
+
+__Note:__ only the following operators can actually be overloaded:
+  `|`, `^`, `&`, `==`, `<`, `<=`, `<<`, `>>`, `>>>`, `+`, `-`, `*`, `/`, `%`,
+  `~`, unary`-`, and unary`+`
+
+### Function Lookup
+
+The functions for each operator are stored in a lookup table.  When a call to
+`Function.defineOperator` is made, we get the `prototype` for the types of the
+arguments.  The prototypes are stored in a protoypes array the index of the
+`prototype` from that array is used to determine the key in the lookup table.
+
+In the case of unary operators the index is the key.  For binary operators, the
+index is a string with the two indices separate by commas.
+
+## Future Work
+
+- [] handle prototype chain
+- [] use static type information to improve performance (could determine which
+  function to call at compile time)
+

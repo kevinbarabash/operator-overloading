@@ -4,7 +4,7 @@ const prototypes = [];
 const operators = {};
 
 const commutatives = [
-    '+', '*', '&&', '||', '&', '|', '^', '==', '!=', '===', '!=='
+    '+', '*', '&&', '||', '&', '|', '^', '==', '!='
 ];
 
 // TODO: define relational operators in terms of each other
@@ -36,7 +36,16 @@ const defineBinaryOperator = function(op, types, fn) {
 
     // handle commutative operations automatically
     if (commutatives.includes(op) && a !== b) {
+        // reverse the arguments so that we can deal with any special cases
+        // involving types that aren't the same
         operators[op][`${rid},${lid}`] = (a, b) => fn(b, a);
+    } else if (op === '<') {
+        operators['>'][`${rid},${lid}`] = (a, b) => fn(b, a);
+    } else if (op === '<=') {
+        operators['>='][`${rid},${lid}`] = (a, b) => fn(b, a);
+    } else if (op === '==') {
+        operators['!='][`${lid},${rid}`] = (a, b) => !fn(a, b);
+        operators['!='][`${rid},${lid}`] = (a, b) => !fn(b, a);
     }
 };
 
@@ -58,7 +67,17 @@ const defineUnaryOperator = function(op, types, fn) {
     operators[op][id] = fn;
 };
 
+const allowedOperators = [
+    '|', '^', '&', '~',
+    '==', '<', '<=',
+    '<<', '>>', '>>>',
+    '+', '-', '*', '/', '%'
+];
+
 Function.defineOperator = function(op, types, fn) {
+    if (!allowedOperators.includes(op)) {
+        throw new Error(`'${op}' cannot be overloaded`);
+    }
     const fnLen = fn.length;
 
     assert.equal(fnLen, types.length,
@@ -87,8 +106,6 @@ const operatorData = {
 
     equality:           ['==',  (a, b) => a == b],
     inequality:         ['!=',  (a, b) => a != b],
-    strictEquality:     ['===', (a, b) => a === b],
-    strictInequality:   ['!==', (a, b) => a !== b],
     lessThan:           ['<',   (a, b) => a !== b],
     lessThanOrEqual:    ['<=',  (a, b) => a !== b],
     greaterThan:        ['>',   (a, b) => a !== b],

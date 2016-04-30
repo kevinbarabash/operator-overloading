@@ -6,11 +6,6 @@ class SuperSet extends Set {
         return [...this].every((item) => other.has(item));
     }
 
-    @operator('>=')
-    isSuperset(other) {
-        return [...other].every((item) => this.has(item));
-    }
-
     @operator('|')
     union(other) {
         return new SuperSet([...this, ...other]);

@@ -14,6 +14,10 @@ module.exports = function transform(code) {
         },
         leave(node) {
             if (node.type === 'BinaryExpression') {
+                // TODO: exclude all binary operators we don't handle
+                if (node.operator === 'instanceof') {
+                    return;
+                }
                 return {
                     type: 'CallExpression',
                     callee: {
@@ -62,6 +66,9 @@ module.exports = function transform(code) {
                     arguments: [node.left, node.right],
                 }
             } else if (node.type === 'AssignmentExpression') {
+                if (node.operator === '=') {
+                    return;
+                }
                 return {
                     type: 'AssignmentExpression',
                     left: JSON.parse(JSON.stringify(node.left)),
@@ -91,6 +98,10 @@ module.exports = function transform(code) {
                     },
                 };
             } else if (node.type === 'UnaryExpression') {
+                // TODO: exclude all unary operators we don't handle
+                if (node.operator === 'typeof') {
+                    return;
+                }
                 return {
                     type: 'CallExpression',
                     callee: {
