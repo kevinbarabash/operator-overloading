@@ -32,7 +32,7 @@ console.log(`3 * ${u} = ${3 * u}`);
 let w = new Vector(1, 0, 0);
 
 console.log(`w = ${w}`);
-console.log(`w += a = ${w += a}`);
+console.log(`w += v = ${w += v}`);
 console.log('');
 
 const U = new Set([1, 1, 2, 3]);
