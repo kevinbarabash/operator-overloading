@@ -83,21 +83,19 @@ const allowedOperators = [
     '+', '-', '*', '/', '%'
 ];
 
-Function.defineOperator = function(desc, fn) {
-    const op = desc.operator;
-
+Function.defineOperator = function(op, types, fn) {
     if (!allowedOperators.includes(op)) {
         throw new Error(`'${op}' cannot be overloaded`);
     }
 
-    if (desc.type === 'BinaryOperator') {
+    if (types.length === 2) {
         assert(fn.length === 2,
             `function takes ${fn.length} params but should take 2`);
-        return defineBinaryOperator(op, [desc.left, desc.right], fn);
-    } else if (desc.type === 'UnaryOperator') {
+        return defineBinaryOperator(op, types, fn);
+    } else if (types.length === 1) {
         assert(fn.length === 1,
             `function takes ${fn.length} params but should take 1`);
-        return defineUnaryOperator(op, [desc.argument], fn);
+        return defineUnaryOperator(op, types, fn);
     }
 };
 
@@ -150,39 +148,11 @@ Object.keys(operatorData).forEach(name => {
             const fn = operators[op][`${aid},${bid}`] || operators[op]['-1,-1'];
             return fn(a, b);
         };
-        if (allowedOperators.includes(op)) {
-g            Function.defineOperator({
-                type: 'BinaryOperator',
-                left: Function,
-                operator: op,
-                right: Function,
-            }, (A, B) => {
-                return {
-                    type: 'BinaryOperator',
-                    left: A,
-                    operator: op,
-                    right: B,
-                };
-            });
-        }
     } else {
         Function[sym] = (a) => {
             const id = prototypes.indexOf(Object.getPrototypeOf(a));
             const fn = operators[op][id] || operators[op]['-1'];
             return fn(a);
         };
-        if (allowedOperators.includes(op)) {
-            Function.defineOperator({
-                type: 'UnaryOperator',
-                operator: op,
-                argument: Function,
-            }, (B) => {
-                return {
-                    type: 'UnaryOperator',
-                    operator: op,
-                    argument: B,
-                };
-            });
-        }
     }
 });

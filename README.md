@@ -23,70 +23,22 @@ w += 3 * v;
 
 ## `Function.defineOperator`
 
-### Binary Operators
-
 Binary operators are defined as follows:
 ```javascript
-Function.defineOperator(Vector + Vector,
-    (u, v) => new Vector(u.x + v.x, u.y + v.y);
+Function.defineOperator(
+    '+',
+    [Vector, Vector],
+    (u, v) => new Vector(u.x + v.x, u.y + v.y)
+);
 ```
-
-This desugars to the following:
-```javascript
-Function.defineOperator({
-    type: 'BinaryOperator',
-    left: Vector,
-    operator: '+',
-    right: Vector
-}, (u, v) => new Vector(u.x + v.x, u.y + v.y));
-```
-
-The `Vector + Vector` syntax can be polyfilled with:
-```javascript
-Function.defineOperator({
-    type: 'BinaryOperator',
-    left: Function,
-    operator: '+',
-    right: Function,
-}, (A, B) => {
-    return {
-        type: 'BinaryOperator',
-        left: A,
-        operator: '+',
-        right: B
-    };
-});
-```
-
-### Unary Operators
 
 Unary operators are defined as follows:
 ```javascript
-Function.defineOperator(- Vector, (v) => new Vector(-v.x, -v.y));
-```
-
-This desugars to the followign:
-```javascript
-Function.defineOperator({
-    type: 'UnaryOperator',
-    operator: '-',
-    argument: Vector
-}, (v) => new Vector(-v.x, -v.y);
-```
-
-The `- Vector` syntax can be polyfilled with:
-```javascript
-Function.defineOperator({
-    type: 'UnaryOperator',
-    operator: '-',
-    argument: Function
-}, (Type) =>  {
-    return {
-        type: 'UnaryOperator',
-        operator: '-',
-        argument: Type
-    };
-});
+Function.defineOperator(
+    '-',
+    [Vector],
+    (v) => new Vector(-v.x, -v.y)
+);
 ```
 
 __Notes:__
@@ -95,7 +47,7 @@ __Notes:__
 - `Function.defineOperator(T == T, (a, b) => fn(a, b)` will automatically define
   `!=` as `(a, b) => !fn(a, b)`.
 - `!` and `!=` cannot be overloaded in order to perserve identities:
-  
+
   ```
   X ? A : B <=> !X ? B : A
   !(X && Y) <=> !X || !Y
@@ -104,7 +56,7 @@ __Notes:__
   ```
   Source: http://www.slideshare.net/BrendanEich/js-resp (page 7)
 - `>` and `>=` are derived from `<` and `<=` as follows:
-  
+
   ```
   A > B     <=> B < A
   A >= B    <=> B <= A
