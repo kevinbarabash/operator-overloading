@@ -35,9 +35,3 @@ exports.unaryOperators = {
     '!': 'logicalNot',
     '~': 'bitwiseNot',
 };
-
-// TODO: figure out how to differentiate pre/post unary ops
-exports.updateOperators = {
-    '++': 'increment',
-    '--': 'decrement',
-};

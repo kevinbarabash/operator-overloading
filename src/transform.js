@@ -125,31 +125,6 @@ module.exports = function transform(code) {
                     },
                     arguments: [node.argument],
                 }
-            } else if (node.type === 'UpdateExpression') {
-                // TODO: remove update expressions
-                return {
-                    type: 'CallExpression',
-                    callee: {
-                        type: 'MemberExpression',
-                        object: {
-                            type: 'Identifier',
-                            name: 'Function',
-                        },
-                        property: {
-                            type: 'MemberExpression',
-                            object: {
-                                type: 'Identifier',
-                                name: 'Symbol',
-                            },
-                            property: {
-                                type: 'Identifier',
-                                name: data.updateOperators[node.operator],
-                            },
-                        },
-                        computed: true,
-                    },
-                    arguments: [node.argument],
-                }
             }
         }
     });
