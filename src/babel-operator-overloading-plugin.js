@@ -1,5 +1,11 @@
 import data from './data';
 
+// We don't transform these because we want to preserve their semantics
+const prohibitedOperators = [
+    'instanceof', '===', '!==',
+    'typeof', '!',
+];
+
 export default function({ types: t }) {
     return {
         visitor: {
@@ -7,7 +13,7 @@ export default function({ types: t }) {
             BinaryExpression(path) {
                 const { node } = path;
 
-                if (node.operator === 'instanceof') {
+                if (prohibitedOperators.includes(node.operator)) {
                     return;
                 }
 
@@ -51,6 +57,8 @@ export default function({ types: t }) {
                     return;
                 }
 
+                const operator = node.operator.replace('=', '');
+
                 path.replaceWith(
                     t.assignmentExpression(
                         '=',
@@ -60,7 +68,7 @@ export default function({ types: t }) {
                                 t.identifier('Function'),
                                 t.memberExpression(
                                     t.identifier('Symbol'),
-                                    t.identifier(data.binaryOperators[node.operator.replace('=', '')])
+                                    t.identifier(data.binaryOperators[operator])
                                 ),
                                 true
                             ),
@@ -73,7 +81,7 @@ export default function({ types: t }) {
             UnaryExpression(path) {
                 const { node } = path;
 
-                if (node.operator === 'typeof') {
+                if (prohibitedOperators.includes(node.operator)) {
                     return;
                 }
 

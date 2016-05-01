@@ -1,5 +1,6 @@
 const data = require('./data');
 
+// TODO: handle static methods by checking typeof target === "function"
 module.exports = function operator(op, otherType) {
     return function(target, name, desc) {
         const ctor = target.constructor;
