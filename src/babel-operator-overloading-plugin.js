@@ -6,11 +6,50 @@ const prohibitedOperators = [
     'typeof', '!',
 ];
 
+const overloadingDirectives = [];
+
 export default function({ types: t }) {
     return {
         visitor: {
+            BlockStatement: {
+                enter(path) {
+                    for (const directive of path.node.directives) {
+                        if (directive.value.value === 'use overloading') {
+                            overloadingDirectives.push(directive);
+                        }
+                    }
+                },
+                exit(path) {
+                    for (const directive of path.node.directives) {
+                        if (directive.value.value === 'use overloading') {
+                            overloadingDirectives.pop();
+                        }
+                    }
+                },
+            },
+
+            Program: {
+                enter(path) {
+                    for (const directive of path.node.directives) {
+                        if (directive.value.value === 'use overloading') {
+                            overloadingDirectives.push(directive);
+                        }
+                    }
+                },
+                exit(path) {
+                    for (const directive of path.node.directives) {
+                        if (directive.value.value === 'use overloading') {
+                            overloadingDirectives.pop();
+                        }
+                    }
+                },
+            },
 
             BinaryExpression(path) {
+                if (overloadingDirectives.length === 0) {
+                    return;
+                }
+
                 const { node } = path;
 
                 if (prohibitedOperators.includes(node.operator)) {
@@ -33,6 +72,10 @@ export default function({ types: t }) {
             },
 
             LogicalExpression(path) {
+                if (overloadingDirectives.length === 0) {
+                    return;
+                }
+
                 const { node } = path;
 
                 path.replaceWith(
@@ -51,6 +94,10 @@ export default function({ types: t }) {
             },
 
             AssignmentExpression(path) {
+                if (overloadingDirectives.length === 0) {
+                    return;
+                }
+
                 const { node } = path;
 
                 if (node.operator === '=') {
@@ -79,6 +126,10 @@ export default function({ types: t }) {
             },
 
             UnaryExpression(path) {
+                if (overloadingDirectives.length === 0) {
+                    return;
+                }
+
                 const { node } = path;
 
                 if (prohibitedOperators.includes(node.operator)) {
