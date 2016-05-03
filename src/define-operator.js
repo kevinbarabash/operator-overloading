@@ -190,41 +190,40 @@ Object.keys(operatorData).forEach(name => {
             const chainA = prototypeChains[aid] ? [aid, ...prototypeChains[aid]]: [-1];
             const chainB = prototypeChains[bid] ? [bid, ...prototypeChains[bid]]: [-1];
 
-            // TODO: think about how to get the precedence order right in ids for mthe start
-            // 1. create an id by using the first id from chains A and B push it onto ids
-            // 2. remove an id from the start of the longer chain, if there isn't a longer
-            //    chain pick one at random
-            // 3. continue until there is only one id left in both chains, this should
-            //    represent the id '-1,-1'
+            // optimize for an exact match of the operand prototypes
+            const fastId = `${chainA[0]},${chainB[0]}`;
+            if (operators[op][fastId]) {
+                const fn = operators[op][fastId];
+                return fn(a, b);
+            }
+
             const ids = [];
-            for (const i of chainA) {
-                for (const j of chainB) {
-                    ids.push([i, j]);
+
+            // TODO: if the operator is commutative we can simplify this a bit
+            while (chainA.length > 1 && chainB.length > 1) {
+                if (chainA.length > chainB.length) {
+                    ids.push(...chainA.map(id => `${id},${chainB[0]}`));
+                    chainA.shift();
+                } else if (chainB.length > chainA.length) {
+                    ids.push(...chainB.map(id => `${chainA[0]},${id}`));
+                    chainB.shift();
+                } else {
+                    ids.push(`${chainA[0]},${chainB[0]}`);
+                    // Ensure the the sum of the chain lengths of each pair of
+                    // prototype chains is monotonically decrease.
+                    for (var i = 1; i < chainA.length; i++) {
+                        ids.push(`${chainA[0]},${chainB[i]}`);
+                        ids.push(`${chainA[i]},${chainB[0]}`);
+                    }
+                    chainA.shift();
+                    chainB.shift();
                 }
             }
 
-            const filteredIds = ids.filter(([i, j]) => operators[op][`${i},${j}`]);
+            // base case
+            ids.push('-1,-1');
 
-            let max = [-Infinity, -Infinity];
-
-            const [i, j] = filteredIds.reduce((previous, current) => {
-                const [i, j] = current;
-                // this is probably overkill... we know that the chain lengths
-                // go in descending order from n, n-1, ... , 0
-                const maxLength = Math.max(prototypeChains[i].length, prototypeChains[j].length);
-                const minLength = Math.min(prototypeChains[i].length, prototypeChains[j].length);
-                if (maxLength > max[0]) {
-                    max[0] = maxLength;
-                    max[1] = minLength;
-                    return [i, j];
-                } else if (maxLength === max && minLength > max[1]) {
-                    max[1] = minLength;
-                    return [i, j];
-                }
-                return previous;
-            }, [-1, -1]);
-
-            const id = `${i},${j}`;
+            const id = ids.find(id => operators[op][id]);
 
             const fn = operators[op][id];
             return fn(a, b);
