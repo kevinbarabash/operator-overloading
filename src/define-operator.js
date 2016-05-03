@@ -7,7 +7,28 @@ const prototypeChains = {
     '-1': [],   // id for Object.prototype is -1, it has no prototype
 };
 
-const operators = {};
+const operators = {
+    '+': {},
+    '-': {},
+    '*': {},
+    '/': {},
+    '%': {},
+    '==': {},
+    '!=': {},
+    '<': {},
+    '<=': {},
+    '>': {},
+    '>=': {},
+    '<<': {},
+    '>>': {},
+    '>>>': {},
+    '|': {},
+    '&': {},
+    '^': {},
+    '~': {},
+    '||': {},
+    '&&': {},
+};
 
 const commutatives = [
     '+', '*', '&&', '||', '&', '|', '^', '==', '!='
@@ -41,11 +62,11 @@ const defineBinaryOperator = function(op, types, fn) {
         throw new Error('Both types must be functions/classes');
     }
 
-    computePrototypeChain(a.prototype);
-    computePrototypeChain(b.prototype);
-
     const aProto = a.prototype;
     const bProto = b.prototype;
+
+    computePrototypeChain(aProto);
+    computePrototypeChain(bProto);
 
     if (!prototypes.includes(aProto)) {
         prototypes.push(aProto);
@@ -59,10 +80,6 @@ const defineBinaryOperator = function(op, types, fn) {
     const rid = prototypes.indexOf(bProto);
     const id = `${lid},${rid}`;
 
-    if (!operators.hasOwnProperty(op)) {
-        operators[op] = {};
-    }
-
     operators[op][id] = fn;
 
     // handle commutative operations automatically
@@ -71,19 +88,10 @@ const defineBinaryOperator = function(op, types, fn) {
         // involving types that aren't the same
         operators[op][`${rid},${lid}`] = (a, b) => fn(b, a);
     } else if (op === '<') {
-        if (!operators.hasOwnProperty('>')) {
-            operators['>'] = {};
-        }
         operators['>'][`${rid},${lid}`] = (a, b) => fn(b, a);
     } else if (op === '<=') {
-        if (!operators.hasOwnProperty('>=')) {
-            operators['>='] = {};
-        }
         operators['>='][`${rid},${lid}`] = (a, b) => fn(b, a);
     } else if (op === '==') {
-        if (!operators.hasOwnProperty('!=')) {
-            operators['!='] = {};
-        }
         operators['!='][`${lid},${rid}`] = (a, b) => !fn(a, b);
         operators['!='][`${rid},${lid}`] = (a, b) => !fn(b, a);
     }
@@ -96,19 +104,14 @@ const defineUnaryOperator = function(op, types, fn) {
         throw new Error('Type must be a function/class');
     }
 
-    computePrototypeChain(a.prototype);
-
     const aProto = a.prototype;
+    computePrototypeChain(aProto);
 
     if (!prototypes.includes(aProto)) {
         prototypes.push(aProto);
     }
 
     const id = prototypes.indexOf(aProto);
-
-    if (!operators.hasOwnProperty(op)) {
-        operators[op] = {};
-    }
 
     operators[op][id] = fn;
 };
@@ -162,7 +165,6 @@ const operatorData = {
 
     logicalOr:          ['||',  (a, b) => a || b],
     logicalAnd:         ['&&',  (a, b) => a && b],
-    logicalNot:         ['!',   (a) => !a],
 };
 
 Object.keys(operatorData).forEach(name => {
