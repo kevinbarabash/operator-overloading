@@ -188,6 +188,12 @@ Object.keys(operatorData).forEach(name => {
             const chainA = prototypeChains[aid] ? [aid, ...prototypeChains[aid]]: [-1];
             const chainB = prototypeChains[bid] ? [bid, ...prototypeChains[bid]]: [-1];
 
+            // TODO: think about how to get the precedence order right in ids for mthe start
+            // 1. create an id by using the first id from chains A and B push it onto ids
+            // 2. remove an id from the start of the longer chain, if there isn't a longer
+            //    chain pick one at random
+            // 3. continue until there is only one id left in both chains, this should
+            //    represent the id '-1,-1'
             const ids = [];
             for (const i of chainA) {
                 for (const j of chainB) {
@@ -197,31 +203,25 @@ Object.keys(operatorData).forEach(name => {
 
             const filteredIds = ids.filter(([i, j]) => operators[op][`${i},${j}`]);
 
-            const chainLengths = filteredIds.map(([i, j]) =>
-                Math.max(prototypeChains[i].length, prototypeChains[j].length));
+            let max = [-Infinity, -Infinity];
 
-            // class precedence via prototype depth
-
-            let max = -Infinity;
-            let maxIndex = -1;
-            chainLengths.forEach((length, index) => {
-                if (length > max) {
-                    max = length;
-                    maxIndex = index;
-                } else if (length === max) {
-                    // we find any lengths that are the same then we opt for a
-                    // length where both have the same length
-                    // TODO: handle the case where we need to decide between 2,1 and 2,0
-                    const [i, j] = filteredIds[index];
-                    if (prototypeChains[i].length === length &&
-                        prototypeChains[j].length === length) {
-
-                        maxIndex = index;
-                    }
+            const [i, j] = filteredIds.reduce((previous, current) => {
+                const [i, j] = current;
+                // this is probably overkill... we know that the chain lengths
+                // go in descending order from n, n-1, ... , 0
+                const maxLength = Math.max(prototypeChains[i].length, prototypeChains[j].length);
+                const minLength = Math.min(prototypeChains[i].length, prototypeChains[j].length);
+                if (maxLength > max[0]) {
+                    max[0] = maxLength;
+                    max[1] = minLength;
+                    return [i, j];
+                } else if (maxLength === max && minLength > max[1]) {
+                    max[1] = minLength;
+                    return [i, j];
                 }
-            });
+                return previous;
+            }, [-1, -1]);
 
-            const [i, j] = filteredIds[maxIndex];
             const id = `${i},${j}`;
 
             const fn = operators[op][id];

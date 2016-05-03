@@ -191,7 +191,7 @@ index is a string with the two indices separate by commas.
 
 ## Future Work
 
-- [ ] handle prototype chain
+- [x] handle prototype chain
 - [ ] use static type information to improve performance (could determine which
   function to call at compile time)
 
