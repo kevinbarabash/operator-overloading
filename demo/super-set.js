@@ -6,7 +6,6 @@ class SuperSet extends Set {
         return [...this].every((item) => other.has(item));
     }
 
-    @operator('|')
     union(other) {
         return new SuperSet([...this, ...other]);
     }
@@ -33,5 +32,11 @@ class SuperSet extends Set {
         return `{${[...this].join(', ')}}`;
     }
 }
+
+Set.prototype.toString = function() {
+    return `Set{${[...this].join(', ')}}`;
+};
+
+Function.defineOperator('|', [Set, Set], (a, b) => new Set([...a, ...b]));
 
 module.exports = SuperSet;

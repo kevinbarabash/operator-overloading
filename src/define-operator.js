@@ -1,17 +1,48 @@
 const assert = require('assert');
 
 const prototypes = [];
+
+// key is the index of prototye from prototypes
+const prototypeChains = {
+    '-1': [],   // id for Object.prototype is -1, it has no prototype
+};
+
 const operators = {};
 
 const commutatives = [
     '+', '*', '&&', '||', '&', '|', '^', '==', '!='
 ];
 
-// TODO: define relational operators in terms of each other
-// e.g. if a user defines == using fn(a, b) we should define != as !fn(a, b)
+const computePrototypeChain = function(proto) {
+    const chain = [];
+
+    while (proto !== Object.prototype) {
+        if (!prototypes.includes(proto)) {
+            prototypes.push(proto);
+        }
+        const index = prototypes.indexOf(proto);
+        chain.push(index);
+
+        proto = Object.getPrototypeOf(proto);
+    }
+    chain.push(-1);
+
+    let [head, ...tail] = chain;
+    while (tail.length > 0) {
+        prototypeChains[head] = tail;
+        [head, ...tail] = tail;
+    }
+};
 
 const defineBinaryOperator = function(op, types, fn) {
     const [a, b] = types;
+
+    if (typeof a !== 'function' || typeof b !== 'function') {
+        throw new Error('Both types must be functions/classes');
+    }
+
+    computePrototypeChain(a.prototype);
+    computePrototypeChain(b.prototype);
 
     const aProto = a.prototype;
     const bProto = b.prototype;
@@ -60,6 +91,12 @@ const defineBinaryOperator = function(op, types, fn) {
 
 const defineUnaryOperator = function(op, types, fn) {
     const [a] = types;
+
+    if (typeof a !== 'function') {
+        throw new Error('Type must be a function/class');
+    }
+
+    computePrototypeChain(a.prototype);
 
     const aProto = a.prototype;
 
@@ -145,13 +182,60 @@ Object.keys(operatorData).forEach(name => {
         Function[sym] = (a, b) => {
             const aid = prototypes.indexOf(Object.getPrototypeOf(a));
             const bid = prototypes.indexOf(Object.getPrototypeOf(b));
-            const fn = operators[op][`${aid},${bid}`] || operators[op]['-1,-1'];
+
+            // TODO: calculate the chains upfront so that prototypeChains[-1] = [-1]
+            // and so each includes its id as the first element in the array
+            const chainA = prototypeChains[aid] ? [aid, ...prototypeChains[aid]]: [-1];
+            const chainB = prototypeChains[bid] ? [bid, ...prototypeChains[bid]]: [-1];
+
+            const ids = [];
+            for (const i of chainA) {
+                for (const j of chainB) {
+                    ids.push([i, j]);
+                }
+            }
+
+            const filteredIds = ids.filter(([i, j]) => operators[op][`${i},${j}`]);
+
+            const chainLengths = filteredIds.map(([i, j]) =>
+                Math.max(prototypeChains[i].length, prototypeChains[j].length));
+
+            // class precedence via prototype depth
+
+            let max = -Infinity;
+            let maxIndex = -1;
+            chainLengths.forEach((length, index) => {
+                if (length > max) {
+                    max = length;
+                    maxIndex = index;
+                } else if (length === max) {
+                    // we find any lengths that are the same then we opt for a
+                    // length where both have the same length
+                    // TODO: handle the case where we need to decide between 2,1 and 2,0
+                    const [i, j] = filteredIds[index];
+                    if (prototypeChains[i].length === length &&
+                        prototypeChains[j].length === length) {
+
+                        maxIndex = index;
+                    }
+                }
+            });
+
+            const [i, j] = filteredIds[maxIndex];
+            const id = `${i},${j}`;
+
+            const fn = operators[op][id];
             return fn(a, b);
         };
     } else {
         Function[sym] = (a) => {
-            const id = prototypes.indexOf(Object.getPrototypeOf(a));
-            const fn = operators[op][id] || operators[op]['-1'];
+            const aid = prototypes.indexOf(Object.getPrototypeOf(a));
+
+            const chainA = prototypeChains[aid] ? [aid, ...prototypeChains[aid]]: [-1];
+
+            const id = chainA.find(id => operators[op][id]);
+
+            const fn = operators[op][id];
             return fn(a);
         };
     }
