@@ -4,7 +4,7 @@ const prototypes = [];
 
 // key is the index of prototye from prototypes
 const prototypeChains = {
-    '-1': [],   // id for Object.prototype is -1, it has no prototype
+    '-1': ['-1'],   // id for Object.prototype is -1, it has no prototype
 };
 
 const operators = {
@@ -35,7 +35,7 @@ const commutatives = [
 ];
 
 const computePrototypeChain = function(proto) {
-    const chain = [];
+    let chain = [];
 
     while (proto !== Object.prototype) {
         if (!prototypes.includes(proto)) {
@@ -48,10 +48,9 @@ const computePrototypeChain = function(proto) {
     }
     chain.push(-1);
 
-    let [head, ...tail] = chain;
-    while (tail.length > 0) {
-        prototypeChains[head] = tail;
-        [head, ...tail] = tail;
+    while (chain.length > 0) {
+        prototypeChains[chain[0]] = chain;
+        chain = chain.slice(1);
     }
 };
 
@@ -172,10 +171,6 @@ Object.keys(operatorData).forEach(name => {
     const fn = operatorData[name][1];
 
     const id = fn.length === 2 ? '-1,-1' : '-1';
-
-    if (!operators[op]) {
-        operators[op] = {};
-    }
     operators[op][id] = fn;
 
     const sym = Symbol[name] = Symbol(name);
@@ -187,8 +182,8 @@ Object.keys(operatorData).forEach(name => {
 
             // TODO: calculate the chains upfront so that prototypeChains[-1] = [-1]
             // and so each includes its id as the first element in the array
-            const chainA = prototypeChains[aid] ? [aid, ...prototypeChains[aid]]: [-1];
-            const chainB = prototypeChains[bid] ? [bid, ...prototypeChains[bid]]: [-1];
+            const chainA = prototypeChains[aid];
+            const chainB = prototypeChains[bid];
 
             // optimize for an exact match of the operand prototypes
             const fastId = `${chainA[0]},${chainB[0]}`;
