@@ -2,7 +2,7 @@
 
 const Complex = require('./complex');
 const Vector = require('./vector');
-const Set = require('./super-set');
+const SuperSet = require('./super-set');
 
 const a = new Complex(1, -1);
 const b = new Complex(0, 3);
@@ -40,8 +40,8 @@ console.log(`w = ${w}`);
 console.log(`w += v = ${w += v}`);
 console.log('');
 
-const U = new Set([1, 1, 2, 3]);
-const V = new Set([3, 5, 8]);
+const U = new SuperSet([1, 1, 2, 3]);
+const V = new SuperSet([3, 5, 8]);
 
 console.log('Set operations:');
 console.log(`U = ${U}`);
@@ -52,7 +52,7 @@ console.log(`U - V = ${U - V}`);
 console.log(`U ^ V = ${U ^ V}`);
 console.log('');
 
-const P = new Set([1,2,3,4,5,6]);
+const P = new SuperSet([1,2,3,4,5,6]);
 const Q = new Set([2,4,6]);
 const R = new Set([1,2,3]);
 

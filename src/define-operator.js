@@ -182,8 +182,9 @@ Object.keys(operatorData).forEach(name => {
 
             // TODO: calculate the chains upfront so that prototypeChains[-1] = [-1]
             // and so each includes its id as the first element in the array
-            const chainA = prototypeChains[aid];
-            const chainB = prototypeChains[bid];
+            // We copy the prototype chains so that we don't modify them.
+            const chainA = [...prototypeChains[aid]];
+            const chainB = [...prototypeChains[bid]];
 
             // optimize for an exact match of the operand prototypes
             const fastId = `${chainA[0]},${chainB[0]}`;

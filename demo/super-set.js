@@ -10,17 +10,14 @@ class SuperSet extends Set {
         return new SuperSet([...this, ...other]);
     }
 
-    @operator('&')
     intersect(other) {
         return new SuperSet([...this].filter(item => other.has(item)));
     }
 
-    @operator('-')
     difference(other) {
         return new SuperSet([...this].filter(item => !other.has(item)));
     }
 
-    @operator('^')
     symmetricDifference(other) {
         return new SuperSet([
             ...[...this].filter(item => !other.has(item)),
@@ -29,7 +26,7 @@ class SuperSet extends Set {
     };
 
     toString() {
-        return `{${[...this].join(', ')}}`;
+        return `Super{${[...this].join(', ')}}`;
     }
 }
 
@@ -38,5 +35,11 @@ Set.prototype.toString = function() {
 };
 
 Function.defineOperator('|', [Set, Set], (a, b) => new Set([...a, ...b]));
+Function.defineOperator('&', [Set, Set], (a, b) => new Set([...a].filter(item => b.has(item))));
+Function.defineOperator('-', [Set, Set], (a, b) => new Set([...a].filter(item => !b.has(item))));
+Function.defineOperator('^', [Set, Set], (a, b) => new SuperSet([
+    ...[...a].filter(item => !b.has(item)),
+    ...[...b].filter(item => !a.has(item))
+]));
 
 module.exports = SuperSet;
