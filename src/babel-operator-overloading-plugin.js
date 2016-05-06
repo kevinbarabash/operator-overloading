@@ -2,7 +2,7 @@ import data from './data';
 
 // We don't transform these because we want to preserve their semantics
 const prohibitedOperators = [
-    'instanceof', '===', '!==',
+    'instanceof', 'in', '===', '!==',
     'typeof', '!',
 ];
 

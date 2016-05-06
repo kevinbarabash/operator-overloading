@@ -1,3 +1,5 @@
+'use strict';
+
 const assert = require('assert');
 
 const prototypes = [];
@@ -34,6 +36,7 @@ const commutatives = [
     '+', '*', '&&', '||', '&', '|', '^', '==', '!='
 ];
 
+// TODO: check if we already have a prototype chain for this prototype
 const computePrototypeChain = function(proto) {
     let chain = [];
 
@@ -54,6 +57,7 @@ const computePrototypeChain = function(proto) {
     }
 };
 
+// TODO: handle the case where someone defines operations on Object.prototype
 const defineBinaryOperator = function(op, types, fn) {
     const [a, b] = types;
 
@@ -64,6 +68,7 @@ const defineBinaryOperator = function(op, types, fn) {
     const aProto = a.prototype;
     const bProto = b.prototype;
 
+    // TODO: check if we have a prototype chain before computing it
     computePrototypeChain(aProto);
     computePrototypeChain(bProto);
 
@@ -174,14 +179,28 @@ Object.keys(operatorData).forEach(name => {
     operators[op][id] = fn;
 
     const sym = Symbol[name] = Symbol(name);
+    const objProto = Object.prototype;
 
     if (fn.length === 2) {
         Function[sym] = (a, b) => {
-            const aid = prototypes.indexOf(Object.getPrototypeOf(a));
-            const bid = prototypes.indexOf(Object.getPrototypeOf(b));
+            if (a != null) {
+                const aProto = Object.getPrototypeOf(a);
+                if (aProto !== objProto && prototypes.indexOf(aProto) === -1) {
+                    computePrototypeChain(aProto);
+                }
+            }
 
-            // TODO: calculate the chains upfront so that prototypeChains[-1] = [-1]
-            // and so each includes its id as the first element in the array
+            // TODO only do this if the type of by is differen from a
+            if (b != null) {
+                const bProto = Object.getPrototypeOf(b);
+                if (bProto !== objProto && prototypes.indexOf(bProto) === -1) {
+                    computePrototypeChain(bProto);
+                }
+            }
+
+            const aid = a == null ? -1 : prototypes.indexOf(Object.getPrototypeOf(a));
+            const bid = b == null ? -1 : prototypes.indexOf(Object.getPrototypeOf(b));
+
             // We copy the prototype chains so that we don't modify them.
             const chainA = [...prototypeChains[aid]];
             const chainB = [...prototypeChains[bid]];
@@ -226,6 +245,13 @@ Object.keys(operatorData).forEach(name => {
         };
     } else {
         Function[sym] = (a) => {
+            if (a != null) {
+                const aProto = Object.getPrototypeOf(a);
+                if (aProto !== objProto && prototypes.indexOf(aProto) === -1) {
+                    computePrototypeChain(aProto);
+                }
+            }
+
             const aid = prototypes.indexOf(Object.getPrototypeOf(a));
 
             const chainA = prototypeChains[aid] ? [aid, ...prototypeChains[aid]]: [-1];
