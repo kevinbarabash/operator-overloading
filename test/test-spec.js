@@ -261,6 +261,9 @@ describe('Operator Overloading', () => {
         `);
 
         assert.equal(result, 42);
+
+        // cleanup so we don't affect other tests
+        Function.defineOperator('+', [Object, Object], (a, b) => a + b);
     });
 
     it('should handle operations on null', () => {
