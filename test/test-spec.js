@@ -284,6 +284,28 @@ describe('Operator Overloading', () => {
         });
     });
 
+    it('overloading unary operators for [Number] is prohibited', () => {
+        assert.throws(() => {
+            run(`
+                "use overloading";
+                
+                Function.defineOperator('+', [Number], (a) => -a);
+                
+                const result = +2;
+            `);
+        });
+
+        assert.throws(() => {
+            run(`
+                "use overloading";
+                
+                Function.defineOperator('-', [Number], (a) => +a);
+                
+                const result = -2;
+            `);
+        });
+    });
+
     it(`overloading '+' for [String, String] is prohibited`, () => {
         assert.throws(() => {
             run(`

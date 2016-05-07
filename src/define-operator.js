@@ -130,6 +130,10 @@ const defineUnaryOperator = function(op, types, fn) {
 
     const aProto = a.prototype;
 
+    if (aProto === Number.prototype) {
+        throw new Error(`redefining '${op}' for [Number] is prohibited`);
+    }
+
     if (!prototypes.includes(aProto)) {
         prototypes.push(aProto);
     }
