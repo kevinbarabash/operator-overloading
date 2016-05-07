@@ -1,7 +1,7 @@
 # Operator Overloading
 
-Working with classes that define standard arithmetic operations result in code
-that takes longer to write and is harder to read.
+In some situations operator overloading can result in code that's easier to
+write and easier to read.
 
 __without overloading__
 ```javascript
@@ -62,6 +62,14 @@ __Notes:__
   A >= B    <=> B <= A
   ```
   Source: http://www.slideshare.net/BrendanEich/js-resp (page 8)
+- Redefining some operators on some built-in types is prohibited.  The reason
+  being that operator overloading should be used to make classes that don't
+  have operator support easier to work with and prevent changing behavior of
+  those classes do that.
+  - all operators on `[Number, Number]`
+  - logical operators on `[Boolean, Boolean]`
+  - `+` on `[String, String]`
+  - unary `+` and `-` on [Number]
 
 ## `'use overloading'` directive
 
@@ -147,33 +155,30 @@ w = Function[Symbol.plus](w, Function[Symbol.times](3, v));
 The implementation defines the following well-known Symbols:
 
 __Binary Operators__
-- plus `+`
-- minus `-`
-- times `*`
-- divide `/`
-- remainder `%`
-- equality `==`
-- inequality `!=`
-- strictEquality `===`
-- strictInequality `!==`
-- lessThan `<`
-- lessThanOrEqual `<=`
-- greaterThan `>`
-- greaterThanOrEqual `>=`
-- shiftLeft `<<`
-- shiftRight `>>`
-- unsignedShiftRight `>>>`
-- bitwiseOr `|`
-- bitwiseAnd `&`
-- bitwiseXor `^`
-- logicalOr `||`
-- logicalAnd `&&`
+- Symbol.plus `+`
+- Symbol.minus `-`
+- Symbol.times `*`
+- Symbol.divide `/`
+- Symbol.remainder `%`
+- Symbol.equality `==`
+- Symbol.inequality `!=`
+- Symbol.lessThan `<`
+- Symbol.lessThanOrEqual `<=`
+- Symbol.greaterThan `>`
+- Symbol.greaterThanOrEqual `>=`
+- Symbol.shiftLeft `<<`
+- Symbol.shiftRight `>>`
+- Symbol.unsignedShiftRight `>>>`
+- Symbol.bitwiseOr `|`
+- Symbol.bitwiseAnd `&`
+- Symbol.bitwiseXor `^`
+- Symbol.logicalOr `||`
+- Symbol.logicalAnd `&&`
 
 __Unary Operators__
-- unaryPlus `+`
-- unaryMinus `-`
-- bitwiseNot `~`
-- logicalNot `!`
+- Symbol.unaryPlus `+`
+- Symbol.unaryMinus `-`
+- Symbol.bitwiseNot `~`
 
 __Note:__ only the following operators can actually be overloaded:
   `|`, `^`, `&`, `==`, `<`, `<=`, `<<`, `>>`, `>>>`, `+`, `-`, `*`, `/`, `%`,
@@ -189,9 +194,12 @@ arguments.  The prototypes are stored in a protoypes array the index of the
 In the case of unary operators the index is the key.  For binary operators, the
 index is a string with the two indices separate by commas.
 
+TODO: describe how prototype chain support works.
+
 ## Future Work
 
 - [x] handle prototype chain
+- [ ] support exponentiation operator
 - [ ] use static type information to improve performance (could determine which
   function to call at compile time)
 
