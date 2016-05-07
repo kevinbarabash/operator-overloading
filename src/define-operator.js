@@ -70,6 +70,20 @@ const defineBinaryOperator = function(op, types, fn) {
     const aProto = a.prototype;
     const bProto = b.prototype;
 
+    if (aProto === Number.prototype && bProto === Number.prototype) {
+        throw new Error(`redefining '${op}' for [Number, Number] is prohibited`);
+    }
+
+    if (aProto === Boolean.prototype && bProto === Boolean.prototype) {
+        if (['||', '&&'].includes(op)) {
+            throw new Error(`redefining '${op}' for [Boolean, Boolean] is prohibited`);
+        }
+    }
+
+    if (op === '+' && aProto === String.prototype && bProto === String.prototype) {
+        throw new Error(`redefining '+' for [String, String] is prohibited`);
+    }
+
     if (!prototypes.includes(aProto)) {
         prototypes.push(aProto);
     }

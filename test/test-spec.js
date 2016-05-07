@@ -115,21 +115,6 @@ describe('Operator Overloading', () => {
         assert.deepEqual([...result], [1, 2, 3]);
     });
 
-    it('can use overloading to define overloaded functions', () => {
-        const result = run(`
-            "use overloading";
-            
-            Function.defineOperator('==', [Set, Set], (a, b) => a <= b && a >= b);
-
-            const a = new Set([1,2]);
-            const b = new Set([1,2]);
-
-            const result = a == b; 
-        `);
-
-        assert(result);
-    });
-
     it('ignores instanceof, in, typeof, etc. operators', () => {
         const code = compile(`
             const a = typeof "foo";
@@ -285,5 +270,51 @@ describe('Operator Overloading', () => {
 
         assert(typeof result === 'number');
         assert(isNaN(result));
+    });
+
+    it('overloading operators for [Number, Number] is prohibited', () => {
+        assert.throws(() => {
+            run(`
+                "use overloading";
+                
+                Function.defineOperator('+', [Number, Number], (a, b) => a - b);
+                
+                const result = 1 + 2;
+            `);
+        });
+    });
+
+    it(`overloading '+' for [String, String] is prohibited`, () => {
+        assert.throws(() => {
+            run(`
+                "use overloading";
+                
+                Function.defineOperator('+', [String, String], (a, b) => a - b);
+                
+                const result = 1 + 2;
+            `);
+        });
+    });
+
+    it(`overloading '&&' or '||' for [Boolean, Boolean] is prohibited`, () => {
+        assert.throws(() => {
+            run(`
+                "use overloading";
+                
+                Function.defineOperator('&&', [Boolean, Boolean], (a, b) => a + b);
+                
+                const result = true && false;
+            `);
+        });
+
+        assert.throws(() => {
+            run(`
+                "use overloading";
+                
+                Function.defineOperator('||', [Boolean, Boolean], (a, b) => a + b);
+                
+                const result = true || false;
+            `);
+        });
     });
 });
