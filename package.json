@@ -1,6 +1,6 @@
 {
-  "name": "operator-overloading",
-  "version": "0.0.1",
+  "name": "define-operator",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha ./test/test-spec.js --compilers js:babel-register",
