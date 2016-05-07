@@ -1,7 +1,8 @@
 {
   "name": "define-operator",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "lib/index.js",
+  "files": ["lib/*.js"],
   "scripts": {
     "test": "mocha ./test/test-spec.js --compilers js:babel-register",
     "prepublish": "babel src --out-dir lib"
