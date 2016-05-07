@@ -7,7 +7,7 @@ const fs = require('fs');
 fs.readFile('demo/sample.js', { encoding: 'utf-8' }, (err, res) => {
     const code = babel.transform(res,{
         presets: ["es2015", "stage-1"],
-        plugins: ["./src/babel-operator-overloading-plugin.js"]
+        plugins: ["babel-plugin-operator-overloading"]
     }).code;
 
     const fn = Function('require', code);
